@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jadwal Imunisasi Bayi</title>
+    <!-- Memuat Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Memuat jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Memuat jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- Memuat html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script>
+        var immunizations = [];
+
+        $(document).ready(function() {
+            // Memuat data yang tersimpan saat halaman dimuat
+            var savedImmunizations = localStorage.getItem('immunizations');
+            if(savedImmunizations) {
+                immunizations = JSON.parse(savedImmunizations);
+                displayImmunizations();
+            }
+        });
+
+        function addImmunization(nama, usia) {
+            var tanggal = $("#tanggal").val();
+            if (tanggal === "") {
+                alert("Mohon isi tanggal.");
+            } else {
+                immunizations.push({ nama: nama, usia: usia, tanggal: tanggal });
+                displayImmunizations();
+                // Menyimpan data ke penyimpanan lokal
+                localStorage.setItem('immunizations', JSON.stringify(immunizations));
+            }
+        }
+
+        function displayImmunizations() {
+            $("#tabelImunisasi").empty();
+            immunizations.forEach(function(immunisasi) {
+                $("#tabelImunisasi").append("<tr><td>" + immunisasi.nama + "</td><td>" + immunisasi.usia + "</td><td>" + immunisasi.tanggal + "</td></tr>");
+            });
+        }
+
+        function clearImmunizations() {
+            if (confirm("Apakah Anda yakin ingin menghapus semua data imunisasi?")) {
+                immunizations = [];
+                localStorage.removeItem('immunizations');
+                displayImmunizations();
+            }
+        }
+
+        function downloadSchedule() {
+            html2canvas(document.querySelector("#tabelImunisasi")).then(canvas => {
+                var pdf = new jsPDF('p', 'mm', 'a4');
+                pdf.text("Jadwal Imunisasi Bayi", 10, 10);
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 20, 180, 0);
+                pdf.save("Jadwal_Imunisasi_Bayi.pdf");
+            });
+        }
+
+        function exportData() {
+            var jsonData = JSON.stringify(immunizations);
+            var blob = new Blob([jsonData], { type: "application/json" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = "jadwal_imunisasi.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function importData(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                var importedData = JSON.parse(event.target.result);
+                immunizations = importedData;
+                localStorage.setItem('immunizations', JSON.stringify(immunizations));
+                displayImmunizations();
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Jadwal Imunisasi Bayi</h1>
+        <p>Masukkan data jadwal imunisasi:</p>
+        <div class="form-group">
+            <label for="tanggal">Tanggal:</label>
+            <input type="date" id="tanggal" class="form-control">
+        </div>
+        <button class="btn btn-primary" onclick="addImmunization('Hepatitis B', 'Usia bayi 0 bulan')">Hepatitis B</button>
+        <button class="btn btn-primary" onclick="addImmunization('BCG', 'Usia bayi 0-1 bulan')">BCG</button>
+		<button class="btn btn-primary" onclick="addImmunization('Polio Tetes 1', 'Usia bayi 0-1 bulan')">Polio Tetes 1</button>
+		<button class="btn btn-primary" onclick="addImmunization('DPT-HB-Hib 1', 'Usia bayi 2 bulan')">DPT-HB-Hib 1</button>
+		<button class="btn btn-primary" onclick="addImmunization('Polio Tetes 2', 'Usia bayi 2 bulan')">Polio Tetes 2</button>
+		<button class="btn btn-primary" onclick="addImmunization('Rota Virus (RV) 1', 'Usia bayi 2 bulan')">Rota Virus (RV) 1</button>
+		<button class="btn btn-primary" onclick="addImmunization('PCV 1', 'Usia bayi 2 bulan')">PCV 1</button>
+		<button class="btn btn-primary" onclick="addImmunization('DPT-HB-Hib 2', 'Usia bayi 3 bulan')">DPT-HB-Hib 2</button>
+		<button class="btn btn-primary" onclick="addImmunization('Polio Tetes 3', 'Usia bayi 3 bulan')">Polio Tetes 3</button>
+		<button class="btn btn-primary" onclick="addImmunization('Rota Virus (RV) 2', 'Usia bayi 3 bulan')">Rota Virus (RV) 2</button>
+		<button class="btn btn-primary" onclick="addImmunization('PCV 2', 'Usia bayi 3 bulan')">PCV 2</button>
+		<button class="btn btn-primary" onclick="addImmunization('DPT-HB-Hib 3', 'Usia bayi 4 bulan')">DPT-HB-Hib 3</button>
+		<button class="btn btn-primary" onclick="addImmunization('Polio Tetes 4', 'Usia bayi 4 bulan')">Polio Tetes 4</button>
+		<button class="btn btn-primary" onclick="addImmunization('Polio Suntik (IPV) 1', 'Usia bayi 4 bulan')">Polio Suntik (IPV) 1</button>
+		<button class="btn btn-primary" onclick="addImmunization('Rota Virus (RV) 3', 'Usia bayi 4 bulan')">Rota Virus (RV) 3</button>
+		<button class="btn btn-primary" onclick="addImmunization('Campak-Rubella (MR)', 'Usia bayi 9 bulan')">Campak-Rubella (MR)</button>
+		<button class="btn btn-primary" onclick="addImmunization('Polio Suntik (IPV) 2', 'Usia bayi 9 bulan')">Polio Suntik (IPV) 2</button>
+		<button class="btn btn-primary" onclick="addImmunization('Japanese Encephalitis (JE)', 'Usia bayi 10 bulan')">Japanese Encephalitis (JE)</button>
+		<button class="btn btn-primary" onclick="addImmunization('PCV 3', 'Usia bayi 12 bulan')">PCV 3</button>
+		<button class="btn btn-primary" onclick="addImmunization('DPT-HB-Hib Lanjutan', 'Usia bayi 13 bulan')">DPT-HB-Hib Lanjutan</button>
+		<button class="btn btn-primary" onclick="addImmunization('Campak-Rubella (MR) Lanjutan', 'Usia bayi 13 bulan')">Campak-Rubella (MR) Lanjutan</button>
+        <!-- Tambahkan tombol-tombol imunisasi lainnya -->
+        <hr>
+        <h2>Jadwal Imunisasi</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Vaksin</th>
+                    <th>Usia</th>
+                    <th>Tanggal</th>
+                </tr>
+            </thead>
+            <tbody id="tabelImunisasi">
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-danger" onclick="clearImmunizations()">Bersihkan</button>
+                <button class="btn btn-success" onclick="downloadSchedule()">Unduh Jadwal</button>
+                <button class="btn btn-info" onclick="exportData()">Ekspor Data</button>
+                <label for="importDataInput" class="btn btn-warning">Impor Data<input type="file" id="importDataInput" style="display: none;" accept=".json" onchange="importData(event)"></label>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
